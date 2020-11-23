@@ -1,0 +1,2 @@
+# DoubanMovieSpider-WebMagic
+该项目使用WebMagic来实现爬取豆瓣movie.douban.com的所有电影信息
