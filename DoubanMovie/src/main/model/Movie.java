@@ -2,6 +2,15 @@ import java.util.*;
 
 public class Movie
 {
+    public long getNumber()
+    {
+        return number;
+    }
+
+    public void setNumber(long number)
+    {
+        this.number = number;
+    }
     public String getName()
     {
         return name;
@@ -93,22 +102,22 @@ public class Movie
         this.countries = countries;
     }
 
-    public Map<String, Date> getReleaseDate()
+    public List<String> getReleaseDate()
     {
         return releaseDate;
     }
 
-    public void setReleaseDate(HashMap<String, Date> releaseDate)
+    public void setReleaseDate(List<String> releaseDate)
     {
         this.releaseDate = releaseDate;
     }
 
-    public int getMins()
+    public String getMins()
     {
         return mins;
     }
 
-    public void setMins(int mins)
+    public void setMins(String mins)
     {
         this.mins = mins;
     }
@@ -153,6 +162,30 @@ public class Movie
         this.description = description;
     }
 
+    public int getNumberOfEpisode()
+    {
+        return numberOfEpisode;
+    }
+
+    public void setNumberOfEpisode(int numberOfEpisode)
+    {
+        this.numberOfEpisode = numberOfEpisode;
+    }
+
+    public String getSigleMins()
+    {
+        return sigleMins;
+    }
+
+    public void setSigleMins(String sigleMins)
+    {
+        this.sigleMins = sigleMins;
+    }
+
+
+
+    // 编号
+    private long number;
     // 名字
     private String name;
     // 海报地址
@@ -172,9 +205,9 @@ public class Movie
     // 国家
     private List<String> countries;
     // 上映日期
-    private Map<String, Date> releaseDate;
+    private List<String> releaseDate;
     // 片长
-    private int mins;
+    private String mins;
     // IMDb链接
     private String IMDbUrl;
     // 评分
@@ -183,5 +216,10 @@ public class Movie
     private int rateCount;
     // 剧情简介
     private String description;
+    // 集数
+    private int numberOfEpisode;
+    // 单集时长
+    private String sigleMins;
+
 
 }
