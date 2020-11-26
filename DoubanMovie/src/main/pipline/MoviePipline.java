@@ -14,6 +14,8 @@ public class MoviePipline implements Pipeline
             if(entry.getValue() instanceof Movie )
             {
                 Movie movie = (Movie) entry.getValue();
+                MovieService movieService=new MovieService();
+                movieService.addMovie(movie);
             }
 
         }

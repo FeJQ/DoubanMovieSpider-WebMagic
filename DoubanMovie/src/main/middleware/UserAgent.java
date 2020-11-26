@@ -82,7 +82,9 @@ public class UserAgent implements Middleware
     @Override
     public void process(Page page, Site site)
     {
+        Random random = new Random();
         site.setUserAgent(choice());
+        site.setSleepTime(random.nextInt(2000) + 100);
     }
 
 

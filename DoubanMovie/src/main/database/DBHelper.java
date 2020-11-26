@@ -1,57 +1,162 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class DBHelper
 {
-    public static final String url = "jdbc:mysql://127.0.0.1/student";
-    public static final String name = "com.mysql.jdbc.Driver";
-    public static final String user = "root";
-    public static final String password = "";
 
-    public Connection connection = null;
-    public PreparedStatement pst = null;
+    //数据库连接地址
+    private final static String url = "jdbc:mysql://localhost:3306/doubanmovie?characterEncoding=utf-8&serverTimezone=UTC&allowMultiQueries=true";
+    //用户名
+    private final static String userName = "root";
+    //密码
+    private final static String password = "08111001";
+    //驱动类
+    private final static String driver = "com.mysql.cj.jdbc.Driver";
 
-    public DBHelper() throws ClassNotFoundException, SQLException
+    private static Connection connection = null;
+
+    private DBHelper()
+    {
+        // 不准实例化
+    }
+
+    /**
+     * 连接数据库
+     *
+     * @return conn
+     */
+    public static Connection getConnection()
     {
         try
         {
-            Class.forName(name);//指定连接类型
-            connection = DriverManager.getConnection(url, user, password);//获取连接
+            if (connection == null || connection.isClosed())
+            {
+                Class.forName(driver);
+                connection = DriverManager.getConnection(url, userName, password);
+            }
         }
         catch (Exception e)
         {
-
+            UtilLogger.log(e);
         }
-
+        return connection;
     }
 
-    public void excute(PreparedStatement sql)
+    /**
+     * 关闭连接对象
+     *
+     * @param conn  连接对象
+     * @param pstmt 预编译对象
+     */
+    public static void close(Connection conn, PreparedStatement pstmt)
     {
         try
         {
-            sql.execute();
+            if (pstmt != null)
+            {
+                pstmt.close();
+            }
+            if (conn != null)
+            {
+                conn.close();
+            }
         }
         catch (Exception e)
         {
-
+            UtilLogger.log(e);
         }
-
     }
 
-
-
-    public void close()
+    public static int update(String sql)
     {
+        int result=0;
+        Statement state = null;
         try
         {
-            this.connection.close();
-            this.pst.close();
+            state = getConnection().createStatement();
+            result = state.executeUpdate(sql);
+            return result;
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
+            UtilLogger.log(e);
+            return 0;
         }
     }
+
+    public static int update(String sql, Object... args)
+    {
+        int result = 0;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try
+        {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            if (args != null)
+            {
+                for (int i = 1; i <= args.length; i++)
+                {
+                    preparedStatement.setObject(i, args[i]);
+                }
+            }
+            result = preparedStatement.executeUpdate();
+        }
+        catch (Exception e)
+        {
+            UtilLogger.log(e);
+        }
+        finally
+        {
+            close(connection, preparedStatement);
+        }
+        return result;
+    }
+
+    public static boolean updateBatch(String sql, Object... args)
+    {
+        boolean flag = false;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try
+        {
+            connection = getConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(sql);
+
+            for (int i = 1; i <= args.length; i++)
+            {
+                preparedStatement.setObject(i, args[i]);
+            }
+            preparedStatement.addBatch();
+
+
+            int [] results=preparedStatement.executeBatch(); //批量执行
+            connection.commit();//提交事务
+            preparedStatement.clearBatch();
+            flag = true;
+        }
+        catch (SQLException e)
+        {
+            try
+            {
+                connection.rollback(); //进行事务回滚
+            }
+            catch (SQLException ex)
+            {
+                UtilLogger.log(e);
+            }
+        }
+        finally
+        {
+            close(connection, preparedStatement);
+        }
+        return flag;
+    }
 }
+
